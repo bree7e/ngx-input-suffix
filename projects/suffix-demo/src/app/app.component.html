@@ -1,9 +1,4 @@
 <h1>{{ title }}</h1>
-<div #inputContainer>
-  <input
-    #domain
-    class="domain-input"
-    [ngxSuffix]="domainSuffix"
-    [ngxSuffixWrapper]="inputContainer"
-  />
+<div ngxSuffixWrapper>
+  <input class="domain-input" ngxSuffix=".example.com" />
 </div>

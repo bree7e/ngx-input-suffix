@@ -7,12 +7,22 @@ import {
   Input,
   OnDestroy,
   Renderer2,
+  SkipSelf,
+  Optional,
 } from '@angular/core';
 
 import { WINDOW } from 'ngx-window-token';
+import { NgxInputSuffixWrapperDirective } from './ngx-input-suffix-wrapper.directive';
 
 /**
  * Suffix directive for input field
+ *
+ * Usage:
+ * ```html
+ * <div ngxSuffixWrapper>
+ *   <input ngxSuffix=".example.com" />
+ * </div>
+ * ```
  */
 @Directive({
   selector: '[ngxSuffix]',
@@ -27,11 +37,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   /** input field value */
   private _inputValue = '';
   /** suffix */
-  @Input()
-  private ngxSuffix: string;
-  /** parent element */
-  @Input()
-  private ngxSuffixWrapper: ElementRef;
+  @Input() ngxSuffix: string;
   /** change value listener */
   @HostListener('input', ['$event.target.value'])
   changeValueInput(value: string): void {
@@ -45,10 +51,16 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   }
 
   constructor(
+    /** parent element */
+    @SkipSelf() @Optional() private _ngxSuffixWrapper: NgxInputSuffixWrapperDirective,
     @Inject(WINDOW) private _window: Window,
     private _elementRef: ElementRef,
     private _renderer: Renderer2
-  ) {}
+  ) {
+    if (!_ngxSuffixWrapper) {
+      throw new Error('[ngxSuffixWrapper] directive should directly wrap [ngxSuffix] directive');
+    }
+  }
 
   ngAfterViewInit(): void {
     if (this.ngxSuffix.length === 0) {
@@ -60,10 +72,6 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
       'off'
     );
     this._inputStyles = this._getElementStyles(this._elementRef.nativeElement);
-    this._renderer.setStyle(this.ngxSuffixWrapper, 'position', 'relative');
-    this._renderer.setStyle(this.ngxSuffixWrapper, 'display', 'flex');
-    this._renderer.setStyle(this.ngxSuffixWrapper, 'alignItems', 'center');
-    this._renderer.setStyle(this.ngxSuffixWrapper, 'flexGrow', '1');
   }
 
   /**
@@ -84,7 +92,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     this._suffixElement = this._renderer.createElement('div') as HTMLDivElement;
     const suffixText = this._renderer.createText(this.ngxSuffix) as Text;
     this._renderer.appendChild(this._suffixElement, suffixText);
-    this._renderer.appendChild(this.ngxSuffixWrapper, this._suffixElement);
+    this._renderer.appendChild(this._ngxSuffixWrapper._el.nativeElement, this._suffixElement);
   }
 
   /**
@@ -149,7 +157,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
       inputValueTextNode
     );
     this._renderer.appendChild(
-      this.ngxSuffixWrapper,
+      this._ngxSuffixWrapper._el.nativeElement,
       this._hiddenContainer
     );
   }
@@ -170,7 +178,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
       return null;
     }
     this._renderer.removeChild(
-      this.ngxSuffixWrapper,
+      this._ngxSuffixWrapper._el.nativeElement,
       this._hiddenContainer
     );
   }
@@ -182,7 +190,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     if (!this._suffixElement) {
       return null;
     }
-    this._renderer.removeChild(this.ngxSuffixWrapper, this._suffixElement);
+    this._renderer.removeChild(this._ngxSuffixWrapper._el.nativeElement, this._suffixElement);
   }
 
   /**
@@ -214,7 +222,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     const inputPaddingRight = suffixContainerWidth + inputPaddingLeft;
     this._renderer.setStyle(
       this._elementRef.nativeElement,
-      'padding-right',
+      'paddingRight',
       `${inputPaddingRight}px`
     );
   }
