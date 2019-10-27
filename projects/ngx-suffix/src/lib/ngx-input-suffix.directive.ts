@@ -68,30 +68,22 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
     this._createHiddenSuffix();
     this._renderer.setAttribute(this._el.nativeElement, 'autocomplete', 'off');
     this._renderer.setStyle(this._el.nativeElement, 'flexGrow', '1');
-    this._ngControl ? this._subscribeToNgControl() : this._subscribeToNative();
+    this._subscribeToValueChanges();
   }
 
   /**
    * Subsribe to native value changes
    */
-  private _subscribeToNative(): void {
-    concat(
-      of((this._el.nativeElement as HTMLInputElement).value || ''), // initial value
-      fromEvent(this._el.nativeElement, 'input').pipe(pluck('target', 'value'))
-    )
-      .pipe(
-        filter(() => this.ngxSuffix.length !== 0),
-        tap((value: string) => (this._value = value)),
-        takeUntil(this._destroy$)
-      )
-      .subscribe({ next: () => this._render() });
-  }
-
-  /**
-   * Subsribe to NgControl value changes
-   */
-  private _subscribeToNgControl(): void {
-    this._ngControl.valueChanges
+  private _subscribeToValueChanges(): void {
+    const stream$ = this._ngControl
+      ? this._ngControl.valueChanges
+      : concat(
+          of((this._el.nativeElement as HTMLInputElement).value || ''), // initial value
+          fromEvent(this._el.nativeElement, 'input').pipe(
+            pluck('target', 'value')
+          )
+        );
+    stream$
       .pipe(
         filter(() => this.ngxSuffix.length !== 0),
         tap((value: string) => (this._value = value)),
