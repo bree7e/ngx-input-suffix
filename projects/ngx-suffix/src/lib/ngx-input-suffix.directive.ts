@@ -117,7 +117,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
    * Get computed hidden container width
    */
   private _getHiddenContainerWidth(): number {
-    const maxInputPaddingLeft = this._computedMaxInputPaddingLeft();
+    const maxInputPaddingLeft = this._getMaxInputPaddingLeft();
     const inputPaddingLeft = parseFloat(this._hostStyles.paddingLeft);
     const inputBorderLeftWidth = parseFloat(this._hostStyles.borderLeftWidth);
     const containerWidth = this._hiddenContainer.offsetWidth;
@@ -131,7 +131,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   /**
    * Computed max input padding left
    */
-  private _computedMaxInputPaddingLeft(): number {
+  private _getMaxInputPaddingLeft(): number {
     const inputStyles = this._hostStyles;
     const inputWidth = parseFloat(inputStyles.width);
     const inputBorderLeft = parseFloat(inputStyles.borderLeft);
@@ -191,6 +191,9 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
    * Set input styles
    */
   private _setInputStyles(): void {
+    if (!this._suffixElement) {
+      return null;
+    }
     const suffixContainerWidth = parseFloat(
       this._getElementStyles(this._suffixElement).width
     );
