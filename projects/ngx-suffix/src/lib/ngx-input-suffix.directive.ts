@@ -140,6 +140,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     );
     this._renderer.setStyle(this._hiddenSuffixElement, 'visibility', 'hidden');
     this._renderer.setStyle(this._hiddenSuffixElement, 'position', 'absolute');
+    this._renderer.setStyle(this._hiddenSuffixElement, 'white-space', 'pre');
   }
 
   /**
