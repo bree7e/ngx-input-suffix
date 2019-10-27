@@ -32,8 +32,8 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   private _hiddenContainer: HTMLDivElement;
   /** suffix container */
   private _suffixElement: HTMLDivElement;
-  /** input computed css styles */
-  private _inputStyles: CSSStyleDeclaration;
+  /** host input computed CSS styles */
+  private _hostStyles: CSSStyleDeclaration;
   /** input field value */
   private _inputValue = '';
   /** suffix */
@@ -52,13 +52,15 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
 
   constructor(
     /** parent element */
-    @SkipSelf() @Optional() private _ngxSuffixWrapper: NgxInputSuffixWrapperDirective,
+    @SkipSelf() @Optional() private _wrapper: NgxInputSuffixWrapperDirective,
     @Inject(WINDOW) private _window: Window,
-    private _elementRef: ElementRef,
+    private _el: ElementRef,
     private _renderer: Renderer2
   ) {
-    if (!_ngxSuffixWrapper) {
-      throw new Error('[ngxSuffixWrapper] directive should directly wrap [ngxSuffix] directive');
+    if (!_wrapper) {
+      throw new Error(
+        '[ngxSuffixWrapper] directive should directly wrap [ngxSuffix] directive'
+      );
     }
   }
 
@@ -66,19 +68,16 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     if (this.ngxSuffix.length === 0) {
       return null;
     }
-    this._renderer.setAttribute(
-      this._elementRef.nativeElement,
-      'autocomplete',
-      'off'
-    );
-    this._inputStyles = this._getElementStyles(this._elementRef.nativeElement);
+    // @TODO issue
+    this._renderer.setAttribute(this._el.nativeElement, 'autocomplete', 'off');
+    this._hostStyles = this._getElementStyles(this._el.nativeElement);
   }
 
   /**
    * Create suffix container
    */
   private _createSuffixContainer(): void {
-    this._destroyOldSuffixContainer();
+    this._destroySuffixContainer();
     if (this._inputValue.length) {
       this._appendSuffixContainer();
       this._setSuffixContainerStyleList();
@@ -92,14 +91,17 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     this._suffixElement = this._renderer.createElement('div') as HTMLDivElement;
     const suffixText = this._renderer.createText(this.ngxSuffix) as Text;
     this._renderer.appendChild(this._suffixElement, suffixText);
-    this._renderer.appendChild(this._ngxSuffixWrapper._el.nativeElement, this._suffixElement);
+    this._renderer.appendChild(
+      this._wrapper._el.nativeElement,
+      this._suffixElement
+    );
   }
 
   /**
    * Set suffix container styles
    */
   private _setSuffixContainerStyleList(): void {
-    const heightSuffixContainer = parseFloat(this._inputStyles.height);
+    const heightSuffixContainer = parseFloat(this._hostStyles.height);
     const currentWidth = this._getHiddenContainerWidth();
     this._setSuffixContainerStyle('position', 'absolute');
     this._setSuffixContainerStyle('pointer-events', 'none');
@@ -116,8 +118,8 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
    */
   private _getHiddenContainerWidth(): number {
     const maxInputPaddingLeft = this._computedMaxInputPaddingLeft();
-    const inputPaddingLeft = parseFloat(this._inputStyles.paddingLeft);
-    const inputBorderLeftWidth = parseFloat(this._inputStyles.borderLeftWidth);
+    const inputPaddingLeft = parseFloat(this._hostStyles.paddingLeft);
+    const inputBorderLeftWidth = parseFloat(this._hostStyles.borderLeftWidth);
     const containerWidth = this._hiddenContainer.offsetWidth;
     const containerPaddingRight =
       containerWidth + inputPaddingLeft + inputBorderLeftWidth;
@@ -130,7 +132,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
    * Computed max input padding left
    */
   private _computedMaxInputPaddingLeft(): number {
-    const inputStyles = this._inputStyles;
+    const inputStyles = this._hostStyles;
     const inputWidth = parseFloat(inputStyles.width);
     const inputBorderLeft = parseFloat(inputStyles.borderLeft);
     const inputPaddingLeft = parseFloat(inputStyles.paddingLeft);
@@ -141,23 +143,20 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
    * Create hidden container
    */
   private _createHiddenContainer(): void {
-    this._destroyOldHiddenContainer();
+    this._destroyHiddenContainer();
     this._appendHiddenContainer();
     this._setHiddenContainerStyles();
   }
 
   /**
-   * Append hidden container
+   * Append hidden container to host element
    */
   private _appendHiddenContainer(): void {
     this._hiddenContainer = this._renderer.createElement('div');
-    const inputValueTextNode = this._renderer.createText(this._inputValue);
+    const textNode = this._renderer.createText(this._inputValue) as Text;
+    this._renderer.appendChild(this._hiddenContainer, textNode);
     this._renderer.appendChild(
-      this._hiddenContainer,
-      inputValueTextNode
-    );
-    this._renderer.appendChild(
-      this._ngxSuffixWrapper._el.nativeElement,
+      this._wrapper._el.nativeElement,
       this._hiddenContainer
     );
   }
@@ -168,29 +167,6 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   private _setHiddenContainerStyles(): void {
     this._setHiddenContainerStyle('visibility', 'hidden');
     this._setHiddenContainerStyle('position', 'absolute');
-  }
-
-  /**
-   * Delete old hidden container
-   */
-  private _destroyOldHiddenContainer(): void {
-    if (!this._hiddenContainer) {
-      return null;
-    }
-    this._renderer.removeChild(
-      this._ngxSuffixWrapper._el.nativeElement,
-      this._hiddenContainer
-    );
-  }
-
-  /**
-   * Delete old hidden container
-   */
-  private _destroyOldSuffixContainer(): void {
-    if (!this._suffixElement) {
-      return null;
-    }
-    this._renderer.removeChild(this._ngxSuffixWrapper._el.nativeElement, this._suffixElement);
   }
 
   /**
@@ -218,10 +194,10 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     const suffixContainerWidth = parseFloat(
       this._getElementStyles(this._suffixElement).width
     );
-    const inputPaddingLeft = parseFloat(this._inputStyles.paddingLeft);
+    const inputPaddingLeft = parseFloat(this._hostStyles.paddingLeft);
     const inputPaddingRight = suffixContainerWidth + inputPaddingLeft;
     this._renderer.setStyle(
-      this._elementRef.nativeElement,
+      this._el.nativeElement,
       'paddingRight',
       `${inputPaddingRight}px`
     );
@@ -235,10 +211,36 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     return this._window.getComputedStyle(element);
   }
 
-  ngOnDestroy(): void {
-    if (this._suffixElement && this._hiddenContainer) {
-      this._destroyOldHiddenContainer();
-      this._destroyOldSuffixContainer();
+  /**
+   * Delete old hidden container
+   */
+  private _destroyHiddenContainer(): void {
+    if (!this._hiddenContainer) {
+      return null;
     }
+    this._renderer.removeChild(
+      this._wrapper._el.nativeElement,
+      this._hiddenContainer
+    );
+    this._hiddenContainer = null;
+  }
+
+  /**
+   * Delete old hidden container
+   */
+  private _destroySuffixContainer(): void {
+    if (!this._suffixElement) {
+      return null;
+    }
+    this._renderer.removeChild(
+      this._wrapper._el.nativeElement,
+      this._suffixElement
+    );
+    this._suffixElement = null;
+  }
+
+  ngOnDestroy(): void {
+    this._destroyHiddenContainer();
+    this._destroySuffixContainer();
   }
 }
