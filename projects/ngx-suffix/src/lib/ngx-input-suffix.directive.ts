@@ -9,6 +9,7 @@ import {
   Renderer2,
   SkipSelf,
   Optional,
+  OnInit,
 } from '@angular/core';
 
 import { WINDOW } from 'ngx-window-token';
@@ -23,13 +24,13 @@ import { NgxInputSuffixWrapperDirective } from './ngx-input-suffix-wrapper.direc
  *   <input ngxSuffix=".example.com" />
  * </div>
  * ```
- * TODO
- * [ ] пробелы
+ * 
+ * TODO init
  */
 @Directive({
   selector: '[ngxSuffix]',
 })
-export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
+export class NgxInputSuffixDirective implements OnInit, OnDestroy {
   /** hidden <div> container to calculate width */
   private _hiddenSuffixElement: HTMLDivElement = null;
   /** rendered suffix, the same as hidden */
@@ -55,10 +56,10 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
 
   constructor(
     /** parent element */
-    @SkipSelf() @Optional() private _wrapper: NgxInputSuffixWrapperDirective,
-    @Inject(WINDOW) private _window: Window,
-    private _el: ElementRef,
-    private _renderer: Renderer2
+    @SkipSelf() @Optional() private readonly _wrapper: NgxInputSuffixWrapperDirective,
+    @Inject(WINDOW) private readonly _window: Window,
+    private readonly _el: ElementRef,
+    private readonly _renderer: Renderer2
   ) {
     if (!_wrapper) {
       throw new Error(
@@ -67,7 +68,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
     }
   }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this._createHiddenSuffix();
     this._replaceTextInHiddenSuffix();
     this._renderer.setAttribute(this._el.nativeElement, 'autocomplete', 'off');

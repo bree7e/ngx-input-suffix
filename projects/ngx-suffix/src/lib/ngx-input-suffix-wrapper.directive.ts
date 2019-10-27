@@ -1,4 +1,4 @@
-import { Directive, ElementRef, AfterViewInit, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, Renderer2, OnInit } from '@angular/core';
 
 /**
  * Suffix wrapper directive
@@ -13,10 +13,10 @@ import { Directive, ElementRef, AfterViewInit, Renderer2 } from '@angular/core';
 @Directive({
   selector: '[ngxSuffixWrapper]',
 })
-export class NgxInputSuffixWrapperDirective implements AfterViewInit {
+export class NgxInputSuffixWrapperDirective implements OnInit {
   constructor(public _el: ElementRef, private _renderer: Renderer2) {}
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this._renderer.setStyle(this._el.nativeElement, 'position', 'relative');
     this._renderer.setStyle(this._el.nativeElement, 'display', 'flex');
     this._renderer.setStyle(this._el.nativeElement, 'alignItems', 'center');

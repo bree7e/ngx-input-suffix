@@ -1,5 +1,5 @@
 <h1>{{ title }}</h1>
 <button (click)="show = !show">Toggle</button>
 <div ngxSuffixWrapper *ngIf="show">
-  <input class="domain-input" ngxSuffix=".example.com" />
+  <input ngxSuffix=".example.com" [(ngModel)]="domain" />
 </div>
