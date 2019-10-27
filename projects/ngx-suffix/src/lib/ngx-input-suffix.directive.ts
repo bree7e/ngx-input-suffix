@@ -1,8 +1,6 @@
 import {
-  AfterViewInit,
   Directive,
   ElementRef,
-  HostListener,
   Inject,
   Input,
   OnDestroy,
@@ -10,10 +8,15 @@ import {
   SkipSelf,
   Optional,
   OnInit,
+  Self,
 } from '@angular/core';
 
 import { WINDOW } from 'ngx-window-token';
+import { NgControl } from '@angular/forms';
+import { takeUntil, filter, pluck, tap } from 'rxjs/operators';
+
 import { NgxInputSuffixWrapperDirective } from './ngx-input-suffix-wrapper.directive';
+import { fromEvent, Subject, concat, of } from 'rxjs';
 
 /**
  * Suffix directive for input field
@@ -24,8 +27,6 @@ import { NgxInputSuffixWrapperDirective } from './ngx-input-suffix-wrapper.direc
  *   <input ngxSuffix=".example.com" />
  * </div>
  * ```
- * 
- * TODO init
  */
 @Directive({
   selector: '[ngxSuffix]',
@@ -38,22 +39,20 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
   /** host `input` computed CSS styles */
   private _hostStyles: CSSStyleDeclaration;
   /** host `input` field value */
-  private _value = (this._el.nativeElement as HTMLInputElement).value || '';
+  private _value = '';
+  /** destroy subject (pattern) */
+  private _destroy$ = new Subject<void>();
   /** suffix */
   @Input() ngxSuffix = '';
-  /** change value listener */
-  @HostListener('input', ['$event.target.value'])
-  changeValueInput(value: string): void {
-    if (this.ngxSuffix.length === 0) {
-      return null;
-    }
-    this._value = value;
-    this._render();
-  }
 
   constructor(
     /** parent element */
-    @SkipSelf() @Optional() private readonly _wrapper: NgxInputSuffixWrapperDirective,
+    @SkipSelf()
+    @Optional()
+    private readonly _wrapper: NgxInputSuffixWrapperDirective,
+    @Self()
+    @Optional()
+    private readonly _ngControl: NgControl,
     @Inject(WINDOW) private readonly _window: Window,
     private readonly _el: ElementRef,
     private readonly _renderer: Renderer2
@@ -69,7 +68,36 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
     this._createHiddenSuffix();
     this._renderer.setAttribute(this._el.nativeElement, 'autocomplete', 'off');
     this._renderer.setStyle(this._el.nativeElement, 'flexGrow', '1');
-    this._render();
+    this._ngControl ? this._subscribeToNgControl() : this._subscribeToNative();
+  }
+
+  /**
+   * Subsribe to native value changes
+   */
+  private _subscribeToNative(): void {
+    concat(
+      of((this._el.nativeElement as HTMLInputElement).value || ''), // initial value
+      fromEvent(this._el.nativeElement, 'input').pipe(pluck('target', 'value'))
+    )
+      .pipe(
+        filter(() => this.ngxSuffix.length !== 0),
+        tap((value: string) => (this._value = value)),
+        takeUntil(this._destroy$)
+      )
+      .subscribe({ next: () => this._render() });
+  }
+
+  /**
+   * Subsribe to NgControl value changes
+   */
+  private _subscribeToNgControl(): void {
+    this._ngControl.valueChanges
+      .pipe(
+        filter(() => this.ngxSuffix.length !== 0),
+        tap((value: string) => (this._value = value)),
+        takeUntil(this._destroy$)
+      )
+      .subscribe({ next: () => this._render() });
   }
 
   /**
@@ -223,5 +251,7 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._destroyHiddenSuffix();
     this._destroySuffix();
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 }

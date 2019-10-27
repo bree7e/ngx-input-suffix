@@ -1,5 +1,12 @@
 <h1>{{ title }}</h1>
 <button (click)="show = !show">Toggle</button>
+
+<h3>Native</h3>
 <div ngxSuffixWrapper *ngIf="show">
-  <input ngxSuffix=".example.com" [(ngModel)]="domain" />
+  <input ngxSuffix=".example.com" value="domain" />
+</div>
+
+<h3>With NgModel</h3>
+<div ngxSuffixWrapper *ngIf="show">
+  <input ngxSuffix=".angular.com" [(ngModel)]="domain" />
 </div>
