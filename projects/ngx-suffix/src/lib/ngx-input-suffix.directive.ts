@@ -23,31 +23,34 @@ import { NgxInputSuffixWrapperDirective } from './ngx-input-suffix-wrapper.direc
  *   <input ngxSuffix=".example.com" />
  * </div>
  * ```
+ * TODO
+ * [ ] пробелы
  */
 @Directive({
   selector: '[ngxSuffix]',
 })
 export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
-  /** current hidden container to calculate width */
-  private _hiddenContainer: HTMLDivElement;
-  /** suffix container */
-  private _suffixElement: HTMLDivElement;
-  /** host input computed CSS styles */
+  /** hidden <div> container to calculate width */
+  private _hiddenSuffixElement: HTMLDivElement = null;
+  /** rendered suffix, the same as hidden */
+  private _suffixElement: HTMLDivElement = null;
+  /** host `input` computed CSS styles */
   private _hostStyles: CSSStyleDeclaration;
-  /** input field value */
-  private _inputValue = '';
+  /** host `input` field value */
+  private _value = '';
   /** suffix */
-  @Input() ngxSuffix: string;
+  @Input() ngxSuffix = '';
   /** change value listener */
   @HostListener('input', ['$event.target.value'])
   changeValueInput(value: string): void {
     if (this.ngxSuffix.length === 0) {
       return null;
     }
-    this._inputValue = value;
-    this._createHiddenContainer();
-    this._createSuffixContainer();
-    this._setInputStyles();
+    this._value = value;
+    this._hostStyles = { ...this._getElementStyles(this._el.nativeElement) };
+    this._replaceTextInHiddenSuffix();
+    this._setRightPaddingToHost();
+    this._moveSuffix();
   }
 
   constructor(
@@ -65,30 +68,38 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (this.ngxSuffix.length === 0) {
-      return null;
-    }
-    // @TODO issue
+    this._createHiddenSuffix();
+    this._replaceTextInHiddenSuffix();
     this._renderer.setAttribute(this._el.nativeElement, 'autocomplete', 'off');
-    this._hostStyles = this._getElementStyles(this._el.nativeElement);
+    this._renderer.setStyle(this._el.nativeElement, 'flexGrow', '1');
   }
 
   /**
-   * Create suffix container
+   * Change suffix container position
    */
-  private _createSuffixContainer(): void {
-    this._destroySuffixContainer();
-    if (this._inputValue.length) {
-      this._appendSuffixContainer();
-      this._setSuffixContainerStyleList();
+  private _moveSuffix(): void {
+    if (!this._value) {
+      this._destroySuffix();
+      return null;
     }
+    if (this._suffixElement === null) {
+      this._createSuffix();
+    }
+    this._setSuffixPositionStyles();
   }
 
   /**
    * Append suffix container
    */
-  private _appendSuffixContainer(): void {
+  private _createSuffix(): void {
     this._suffixElement = this._renderer.createElement('div') as HTMLDivElement;
+    this._renderer.setStyle(this._suffixElement, 'position', 'absolute');
+    this._renderer.setStyle(this._suffixElement, 'pointerEvents', 'none');
+    this._renderer.setStyle(
+      this._suffixElement,
+      'color',
+      'var(--ngx-suffix__text-color, gray)'
+    );
     const suffixText = this._renderer.createText(this.ngxSuffix) as Text;
     this._renderer.appendChild(this._suffixElement, suffixText);
     this._renderer.appendChild(
@@ -98,111 +109,69 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Set suffix container styles
+   * Set CSS styles to suffix element
    */
-  private _setSuffixContainerStyleList(): void {
-    const heightSuffixContainer = parseFloat(this._hostStyles.height);
-    const currentWidth = this._getHiddenContainerWidth();
-    this._setSuffixContainerStyle('position', 'absolute');
-    this._setSuffixContainerStyle('pointer-events', 'none');
-    this._setSuffixContainerStyle(
-      'color',
-      'var(--ngx-suffix__text-color, gray)'
-    );
-    this._setSuffixContainerStyle('line-height', `${heightSuffixContainer}px`);
-    this._setSuffixContainerStyle('left', `${currentWidth}px`);
+  private _setSuffixPositionStyles(): void {
+    const height = parseFloat(this._hostStyles.height);
+    const leftOffset = this._getSuffixOffset();
+    this._renderer.setStyle(this._suffixElement, 'lineHeight', `${height}px`);
+    this._renderer.setStyle(this._suffixElement, 'left', `${leftOffset}px`);
   }
 
   /**
    * Get computed hidden container width
    */
-  private _getHiddenContainerWidth(): number {
-    const maxInputPaddingLeft = this._getMaxInputPaddingLeft();
-    const inputPaddingLeft = parseFloat(this._hostStyles.paddingLeft);
-    const inputBorderLeftWidth = parseFloat(this._hostStyles.borderLeftWidth);
-    const containerWidth = this._hiddenContainer.offsetWidth;
-    const containerPaddingRight =
-      containerWidth + inputPaddingLeft + inputBorderLeftWidth;
-    return containerPaddingRight > maxInputPaddingLeft
-      ? maxInputPaddingLeft
-      : containerPaddingRight;
-  }
-
-  /**
-   * Computed max input padding left
-   */
-  private _getMaxInputPaddingLeft(): number {
-    const inputStyles = this._hostStyles;
-    const inputWidth = parseFloat(inputStyles.width);
-    const inputBorderLeft = parseFloat(inputStyles.borderLeft);
-    const inputPaddingLeft = parseFloat(inputStyles.paddingLeft);
-    return inputWidth - inputPaddingLeft - inputBorderLeft;
+  private _getSuffixOffset(): number {
+    const borderLeft = parseFloat(this._hostStyles.borderLeftWidth);
+    const paddingLeft = parseFloat(this._hostStyles.paddingLeft);
+    const width = this._hiddenSuffixElement.offsetWidth;
+    const hostWidth = parseFloat(this._hostStyles.width);
+    return Math.min(width, hostWidth) + paddingLeft + borderLeft;
   }
 
   /**
    * Create hidden container
    */
-  private _createHiddenContainer(): void {
-    this._destroyHiddenContainer();
-    this._appendHiddenContainer();
-    this._setHiddenContainerStyles();
-  }
-
-  /**
-   * Append hidden container to host element
-   */
-  private _appendHiddenContainer(): void {
-    this._hiddenContainer = this._renderer.createElement('div');
-    const textNode = this._renderer.createText(this._inputValue) as Text;
-    this._renderer.appendChild(this._hiddenContainer, textNode);
+  private _createHiddenSuffix(): void {
+    this._hiddenSuffixElement = this._renderer.createElement('div');
     this._renderer.appendChild(
       this._wrapper._el.nativeElement,
-      this._hiddenContainer
+      this._hiddenSuffixElement
     );
+    this._renderer.setStyle(this._hiddenSuffixElement, 'visibility', 'hidden');
+    this._renderer.setStyle(this._hiddenSuffixElement, 'position', 'absolute');
   }
 
   /**
-   * Set suffix container styles
+   * Update text in hidden `div`
    */
-  private _setHiddenContainerStyles(): void {
-    this._setHiddenContainerStyle('visibility', 'hidden');
-    this._setHiddenContainerStyle('position', 'absolute');
+  private _replaceTextInHiddenSuffix() {
+    while (this._hiddenSuffixElement.firstChild) {
+      this._renderer.removeChild(
+        this._hiddenSuffixElement,
+        this._hiddenSuffixElement.firstChild
+      );
+    }
+    const textNode = this._renderer.createText(this._value) as Text;
+    this._renderer.appendChild(this._hiddenSuffixElement, textNode);
   }
 
   /**
-   * Set hidden container style
-   * @param property - css property
-   * @param value - new property value
+   * Set padding to host elemebt
    */
-  private _setHiddenContainerStyle(property: string, value: string): void {
-    this._renderer.setStyle(this._hiddenContainer, property, value);
-  }
-
-  /**
-   * Set suffix container style
-   * @param property - css property
-   * @param value - new property value
-   */
-  private _setSuffixContainerStyle(property: string, value: string): void {
-    this._renderer.setStyle(this._suffixElement, property, value);
-  }
-
-  /**
-   * Set input styles
-   */
-  private _setInputStyles(): void {
+  private _setRightPaddingToHost(): void {
     if (!this._suffixElement) {
       return null;
     }
-    const suffixContainerWidth = parseFloat(
+    const suffixElementWidth = parseFloat(
       this._getElementStyles(this._suffixElement).width
     );
-    const inputPaddingLeft = parseFloat(this._hostStyles.paddingLeft);
-    const inputPaddingRight = suffixContainerWidth + inputPaddingLeft;
+    const originPaddingRight = parseFloat(this._hostStyles.paddingLeft);
+    const paddingRight = suffixElementWidth + originPaddingRight;
     this._renderer.setStyle(
       this._el.nativeElement,
       'paddingRight',
-      `${inputPaddingRight}px`
+      `${paddingRight}px`
     );
   }
 
@@ -217,21 +186,21 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   /**
    * Delete old hidden container
    */
-  private _destroyHiddenContainer(): void {
-    if (!this._hiddenContainer) {
+  private _destroyHiddenSuffix(): void {
+    if (!this._hiddenSuffixElement) {
       return null;
     }
     this._renderer.removeChild(
       this._wrapper._el.nativeElement,
-      this._hiddenContainer
+      this._hiddenSuffixElement
     );
-    this._hiddenContainer = null;
+    this._hiddenSuffixElement = null;
   }
 
   /**
    * Delete old hidden container
    */
-  private _destroySuffixContainer(): void {
+  private _destroySuffix(): void {
     if (!this._suffixElement) {
       return null;
     }
@@ -243,7 +212,7 @@ export class NgxInputSuffixDirective implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this._destroyHiddenContainer();
-    this._destroySuffixContainer();
+    this._destroyHiddenSuffix();
+    this._destroySuffix();
   }
 }
