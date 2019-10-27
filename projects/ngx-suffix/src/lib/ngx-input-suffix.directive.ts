@@ -38,7 +38,7 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
   /** host `input` computed CSS styles */
   private _hostStyles: CSSStyleDeclaration;
   /** host `input` field value */
-  private _value = '';
+  private _value = (this._el.nativeElement as HTMLInputElement).value || '';
   /** suffix */
   @Input() ngxSuffix = '';
   /** change value listener */
@@ -48,10 +48,7 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
       return null;
     }
     this._value = value;
-    this._hostStyles = { ...this._getElementStyles(this._el.nativeElement) };
-    this._replaceTextInHiddenSuffix();
-    this._setRightPaddingToHost();
-    this._moveSuffix();
+    this._render();
   }
 
   constructor(
@@ -70,15 +67,25 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._createHiddenSuffix();
-    this._replaceTextInHiddenSuffix();
     this._renderer.setAttribute(this._el.nativeElement, 'autocomplete', 'off');
     this._renderer.setStyle(this._el.nativeElement, 'flexGrow', '1');
+    this._render();
   }
 
   /**
-   * Change suffix container position
+   * Render suffix
    */
-  private _moveSuffix(): void {
+  private _render() {
+    this._hostStyles = { ...this._getElementStyles(this._el.nativeElement) };
+    this._replaceTextInHiddenSuffix();
+    this._setRightPaddingToHost();
+    this._setSuffix();
+  }
+
+  /**
+   * Create and/or change suffix container position
+   */
+  private _setSuffix(): void {
     if (!this._value) {
       this._destroySuffix();
       return null;
@@ -96,6 +103,8 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
     this._suffixElement = this._renderer.createElement('div') as HTMLDivElement;
     this._renderer.setStyle(this._suffixElement, 'position', 'absolute');
     this._renderer.setStyle(this._suffixElement, 'pointerEvents', 'none');
+    const height = parseFloat(this._hostStyles.height);
+    this._renderer.setStyle(this._suffixElement, 'lineHeight', `${height}px`);
     this._renderer.setStyle(
       this._suffixElement,
       'color',
@@ -113,9 +122,7 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
    * Set CSS styles to suffix element
    */
   private _setSuffixPositionStyles(): void {
-    const height = parseFloat(this._hostStyles.height);
     const leftOffset = this._getSuffixOffset();
-    this._renderer.setStyle(this._suffixElement, 'lineHeight', `${height}px`);
     this._renderer.setStyle(this._suffixElement, 'left', `${leftOffset}px`);
   }
 
