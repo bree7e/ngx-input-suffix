@@ -1,6 +1,23 @@
 # NgxSuffix
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.2.2.
+body, input {
+одинаковые стили для суфиа и тела
+}
+
+wrapper должен иметь. директива сама ставит
+
+```css
+.wrapper {
+  display: flex;
+  position: relative;
+  align-items: center;
+  flex-grow: 1;
+}
+```
+
+Есть переменная для цвета var(--ngx-suffix__text-color);
+
+
 
 ## Development server
 
@@ -25,3 +42,7 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+```
+
+```
