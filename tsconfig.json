@@ -19,11 +19,11 @@
       "dom"
     ],
     "paths": {
-      "ngx-suffix": [
-        "dist/ngx-suffix"
+      "ngx-input-suffix": [
+        "dist/ngx-input-suffix"
       ],
-      "ngx-suffix/*": [
-        "dist/ngx-suffix/*"
+      "ngx-input-suffix/*": [
+        "dist/ngx-input-suffix/*"
       ]
     }
   },

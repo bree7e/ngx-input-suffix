@@ -3,33 +3,33 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ngx-suffix": {
+    "ngx-input-suffix": {
       "projectType": "library",
-      "root": "projects/ngx-suffix",
-      "sourceRoot": "projects/ngx-suffix/src",
+      "root": "projects/ngx-input-suffix",
+      "sourceRoot": "projects/ngx-input-suffix/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
           "options": {
-            "tsConfig": "projects/ngx-suffix/tsconfig.lib.json",
-            "project": "projects/ngx-suffix/ng-package.json"
+            "tsConfig": "projects/ngx-input-suffix/tsconfig.lib.json",
+            "project": "projects/ngx-input-suffix/ng-package.json"
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/ngx-suffix/src/test.ts",
-            "tsConfig": "projects/ngx-suffix/tsconfig.spec.json",
-            "karmaConfig": "projects/ngx-suffix/karma.conf.js"
+            "main": "projects/ngx-input-suffix/src/test.ts",
+            "tsConfig": "projects/ngx-input-suffix/tsconfig.spec.json",
+            "karmaConfig": "projects/ngx-input-suffix/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/ngx-suffix/tsconfig.lib.json",
-              "projects/ngx-suffix/tsconfig.spec.json"
+              "projects/ngx-input-suffix/tsconfig.lib.json",
+              "projects/ngx-input-suffix/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
@@ -160,5 +160,5 @@
         }
       }
     }},
-  "defaultProject": "ngx-suffix"
+  "defaultProject": "ngx-input-suffix"
 }

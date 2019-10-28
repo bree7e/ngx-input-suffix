@@ -6,4 +6,4 @@ import { NgxInputSuffixWrapperDirective } from './ngx-input-suffix-wrapper.direc
   declarations: [NgxInputSuffixDirective, NgxInputSuffixWrapperDirective],
   exports: [NgxInputSuffixDirective, NgxInputSuffixWrapperDirective]
 })
-export class NgxSuffixModule { }
+export class NgxInputSuffixModule { }

@@ -128,7 +128,7 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
     this._renderer.setStyle(
       this._suffixElement,
       'color',
-      'var(--ngx-suffix__text-color, gray)'
+      'var(--ngx-input-suffix__text-color, gray)'
     );
     const suffixText = this._renderer.createText(this.ngxSuffix) as Text;
     this._renderer.appendChild(this._suffixElement, suffixText);
