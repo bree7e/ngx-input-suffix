@@ -2,9 +2,7 @@
 
 ## Demo
 
-<video autoplay loop muted playsinline>
-  <source src="https://raw.githubusercontent.com/bree7e/ngx-input-suffix/master/assets/ngx-input-suffix-demo.webm" type="video/webm">
-</video>
+![ngx-input-suffix demo](https://raw.githubusercontent.com/bree7e/ngx-input-suffix/master/assets/ngx-input-suffix-demo.gif)
 
 ## Installation
 
