@@ -32,6 +32,7 @@ import { fromEvent, Subject, concat, of } from 'rxjs';
   selector: '[ngxSuffix]',
 })
 export class NgxInputSuffixDirective implements OnInit, OnDestroy {
+  private readonly _window: Window;
   /** hidden <div> container to calculate width */
   private _hiddenSuffixElement: HTMLDivElement = null;
   /** rendered suffix, the same as hidden */
@@ -53,15 +54,16 @@ export class NgxInputSuffixDirective implements OnInit, OnDestroy {
     @Self()
     @Optional()
     private readonly _ngControl: NgControl,
-    @Inject(WINDOW) private readonly _window: Window,
     private readonly _el: ElementRef,
-    private readonly _renderer: Renderer2
+    private readonly _renderer: Renderer2,
+    @Inject(WINDOW) window,
   ) {
     if (!_wrapper) {
       throw new Error(
         '[ngxSuffixWrapper] directive should directly wrap [ngxSuffix] directive'
       );
     }
+    this._window = window;
   }
 
   ngOnInit(): void {
