@@ -1,6 +1,15 @@
 {
   "name": "ngx-input-suffix",
-  "version": "0.0.1",
+  "homepage": "https://github.com/bree7e/ngx-input-suffix",
+  "version": "1.0.0",
+  "author": {
+    "name": "Alexandr Vetrov",
+    "url": "https://tyapk.ru"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/bree7e/ngx-input-suffix.git"
+  },
   "peerDependencies": {
     "@angular/common": "^8.2.0",
     "@angular/core": "^8.2.0",
