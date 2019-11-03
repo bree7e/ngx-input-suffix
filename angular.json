@@ -160,7 +160,10 @@
         },
         "deploy": {
           "builder": "angular-cli-ghpages:deploy",
-          "options": {}
+          "options": {
+            "baseHref": "https://bree7e.github.io/ngx-input-suffix/",
+            "name": "Ngx Input Suffix Demo"
+          }
         }
       }
     }
