@@ -157,8 +157,13 @@
               "devServerTarget": "suffix-demo:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {}
         }
       }
-    }},
-  "defaultProject": "ngx-input-suffix"
+    }
+  },
+  "defaultProject": "suffix-demo"
 }
