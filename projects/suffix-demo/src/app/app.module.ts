@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 // import { NgxInputSuffixModule } from 'ngx-input-suffix';
 import { NgxInputSuffixModule } from 'projects/ngx-input-suffix/src/public-api';
+import { PrismModule } from '@ngx-prism/core';
 
 import { AppComponent } from './app.component';
 
@@ -14,6 +15,7 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     FormsModule,
+    PrismModule,
     NgxInputSuffixModule
   ],
   providers: [],
