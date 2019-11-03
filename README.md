@@ -44,7 +44,7 @@ export class AppModule { }
 </div>
 ```
 
-There is `--ngx-input-suffix__text-color` css vaiable to set suffix color. Default color is grey.
+There is `--ngx-input-suffix__text-color` css variable to set suffix color. Default color is grey.
 ```css
 .wrapper {
   --ngx-input-suffix__text-color: black;
