@@ -14,6 +14,11 @@
           "options": {
             "tsConfig": "projects/ngx-input-suffix/tsconfig.lib.json",
             "project": "projects/ngx-input-suffix/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ngx-input-suffix/tsconfig.lib.prod.json"
+            }
           }
         },
         "test": {
@@ -57,7 +62,7 @@
             "main": "projects/suffix-demo/src/main.ts",
             "polyfills": "projects/suffix-demo/src/polyfills.ts",
             "tsConfig": "projects/suffix-demo/tsconfig.app.json",
-            "aot": false,
+            "aot": true,
             "assets": [
               "projects/suffix-demo/src/favicon.ico",
               "projects/suffix-demo/src/assets"
@@ -80,7 +85,6 @@
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
@@ -168,5 +172,8 @@
       }
     }
   },
-  "defaultProject": "suffix-demo"
+  "defaultProject": "suffix-demo",
+  "cli": {
+    "analytics": "e381097f-ef16-469d-a5d3-c73d790e1947"
+  }
 }
