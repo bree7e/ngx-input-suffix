@@ -1,8 +1,12 @@
 # ngx-input-suffix
 
+Angular directive that render helper text to the right of input text
+
 ## Demo
 
 ![ngx-input-suffix demo](https://raw.githubusercontent.com/bree7e/ngx-input-suffix/master/assets/ngx-input-suffix-demo.gif)
+
+[Demo application](https://bree7e.github.io/ngx-input-suffix/)
 
 ## Installation
 
@@ -44,6 +48,17 @@ export class AppModule { }
 </div>
 ```
 
+Support initial value
+```html
+<div ngxSuffixWrapper>
+  <input ngxSuffix=".example.com" value="domain" />
+</div>
+<div ngxSuffixWrapper>
+  <input ngxSuffix=".angular.com" [(ngModel)]="domain" />
+</div>
+```
+
+## Customization
 There is `--ngx-input-suffix__text-color` css variable to set suffix color. Default color is grey.
 ```css
 .wrapper {
