@@ -4,6 +4,8 @@
 
 ![ngx-input-suffix demo](https://raw.githubusercontent.com/bree7e/ngx-input-suffix/master/assets/ngx-input-suffix-demo.gif)
 
+[Demo application](https://bree7e.github.io/ngx-input-suffix/)
+
 ## Installation
 
 To install this library, run:
@@ -44,6 +46,7 @@ export class AppModule { }
 </div>
 ```
 
+## Customization
 There is `--ngx-input-suffix__text-color` css variable to set suffix color. Default color is grey.
 ```css
 .wrapper {
