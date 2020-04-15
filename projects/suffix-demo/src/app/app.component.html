@@ -5,14 +5,15 @@
 <div ngxSuffixWrapper *ngIf="show" class="wrapper">
   <input ngxSuffix=".example.com" value="domain" />
 </div>
-<ngx-prism language="html">
-  {{ block1 }}
-</ngx-prism>
+
+<pre>
+  <code [highlight]="block1"></code>
+</pre>
 
 <h3>With NgModel</h3>
 <div ngxSuffixWrapper *ngIf="show" class="wrapper">
   <input ngxSuffix=".angular.com" [(ngModel)]="domain" />
 </div>
-<ngx-prism language="html">
-  {{ block2 }}
-</ngx-prism>
+<pre>
+  <code [highlight]="block2"></code>
+</pre>

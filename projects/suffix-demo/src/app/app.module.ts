@@ -4,9 +4,10 @@ import { FormsModule } from '@angular/forms';
 
 // import { NgxInputSuffixModule } from 'ngx-input-suffix';
 import { NgxInputSuffixModule } from 'projects/ngx-input-suffix/src/public-api';
-import { PrismModule } from '@ngx-prism/core';
+import { HighlightPlusModule } from 'ngx-highlightjs/plus';
 
 import { AppComponent } from './app.component';
+
 
 @NgModule({
   declarations: [
@@ -15,7 +16,7 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     FormsModule,
-    PrismModule,
+    HighlightPlusModule ,
     NgxInputSuffixModule
   ],
   providers: [],

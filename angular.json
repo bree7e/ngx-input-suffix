@@ -68,7 +68,8 @@
               "projects/suffix-demo/src/assets"
             ],
             "styles": [
-              "projects/suffix-demo/src/styles.scss"
+              "projects/suffix-demo/src/styles.scss",
+              "./node_modules/highlight.js/styles/github.css"
             ],
             "scripts": []
           },
